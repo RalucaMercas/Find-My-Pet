@@ -1,6 +1,5 @@
 # Exclude virtual environment
 .venv/
-venv
 # Django specific
 *.pyc
 __pycache__/
@@ -13,5 +12,4 @@ db.sqlite3
 # Logs and temporary files
 *.log
 *.swp
-/venv/
 /venv/
