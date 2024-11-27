@@ -1,0 +1,16 @@
+# Virtual environment
+.venv/
+env/
+
+# Django specific
+*.pyc
+__pycache__/
+db.sqlite3
+
+# IDE specific
+.idea/
+*.iml
+
+# Logs and temporary files
+*.log
+*.swp
