@@ -18,3 +18,10 @@ def sign_up(request):
         form = RegisterForm()
 
     return render(request, 'registration/sign_up.html', {"form": form})
+
+
+def log_out(request):
+    logout(request)
+    return redirect('/login')
+    # return redirect('/home')
+
