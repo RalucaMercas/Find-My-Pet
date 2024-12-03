@@ -1,16 +1,20 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User
-from phonenumber_field.formfields import PhoneNumberField
 from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
+from phonenumbers import parse, is_valid_number, NumberParseException, region_code_for_country_code
 
 
 class RegisterForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(required=True)
-    phone_number = PhoneNumberField(required=True)
+
+    phone_number = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "Enter your phone number with country code"}),
+    )
     country = CountryField().formfield(
         required=True,
         widget=CountrySelectWidget(attrs={"class": "form-control"}))
@@ -23,14 +27,28 @@ class RegisterForm(UserCreationForm):
         phone = self.cleaned_data.get("phone_number")
         country = self.cleaned_data.get("country")
 
-        # Validate and parse the phone number based on the selected country
-        from phonenumbers import parse, is_valid_number, NumberParseException
+        if not phone or not country:
+            raise forms.ValidationError("Both phone number and country are required.")
 
         try:
-            parsed_number = parse(phone, country.alpha_2)  # Country's ISO alpha-2 code
+            parsed_number = parse(phone, country)
+
             if not is_valid_number(parsed_number):
-                raise forms.ValidationError("Invalid phone number for the selected country.")
-        except NumberParseException:
-            raise forms.ValidationError("Invalid phone number format.")
+                region_code = region_code_for_country_code(parsed_number.country_code)
+                if not region_code:
+                    raise forms.ValidationError("The country code in the phone number is invalid.")
+                elif region_code != country:
+                    raise forms.ValidationError(
+                        f"The phone number does not match the selected country ({country})."
+                    )
+                else:
+                    raise forms.ValidationError(
+                        "The phone number is not valid. Ensure it includes the correct country code and is in the correct format."
+                    )
+
+        except NumberParseException as e:
+            raise forms.ValidationError(
+                f"The phone number format is invalid. Error: {str(e)}"
+            )
 
         return phone

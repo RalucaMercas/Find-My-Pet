@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 from django_countries.fields import CountryField
-from phonenumber_field.formfields import PhoneNumberField
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class User(AbstractUser):
@@ -17,6 +17,7 @@ class User(AbstractUser):
     )
 
     phone_number = PhoneNumberField(
+        unique=True,
         help_text="Provide a valid phone number, including the country code."
     )
 
