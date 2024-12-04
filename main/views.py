@@ -49,8 +49,8 @@ class DeleteAccountView(LoginRequiredMixin, TemplateView):
             user = authenticate(username=request.user.username, password=password)
             if user:
                 user.delete()
-                messages.success(request, "Your account has been deleted successfully.")
-                return redirect('home')  
+                # messages.success(request, "Your account has been deleted successfully.")
+                return redirect('home')
             else:
                 messages.error(request, "Incorrect password. Please try again.")
         else:

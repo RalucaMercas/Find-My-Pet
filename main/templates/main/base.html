@@ -22,17 +22,21 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/about">About us</a>
                 </li>
-                {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/delete_account">Delete Account</a>
-                </li>
-                {% endif %}
             </ul>
         </div>
         <div>
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
                 <span class="navbar-text">Logged in as {{user.username}} | </span>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Settings
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
+                        <li><a class="dropdown-item" href="/delete_account">Delete Account</a></li>
+                        <li><a class="dropdown-item" href="/password_change">Change Password</a></li>
+                    </ul>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/log-out">Logout</a>
                 </li>
