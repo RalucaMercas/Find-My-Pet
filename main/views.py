@@ -38,6 +38,10 @@ def about(request):
 class DeleteAccountView(LoginRequiredMixin, TemplateView):
     template_name = 'delete_account.html'
 
+    def get(self, request, *args, **kwargs):
+        form = ConfirmPasswordForm()
+        return render(request, self.template_name, {'form': form})
+
     def post(self, request, *args, **kwargs):
         form = ConfirmPasswordForm(request.POST)
         if form.is_valid():
@@ -46,13 +50,12 @@ class DeleteAccountView(LoginRequiredMixin, TemplateView):
             if user:
                 user.delete()
                 messages.success(request, "Your account has been deleted successfully.")
-                return redirect('home')
+                return redirect('home')  
             else:
                 messages.error(request, "Incorrect password. Please try again.")
         else:
             messages.error(request, "Please confirm your password.")
         return render(request, self.template_name, {'form': form})
-
 
 # TODO: if a user clicks on "Forgot password" on the login page, and the provided email is not in the database,
 #  the user should be warned that there is no account with that email address.
