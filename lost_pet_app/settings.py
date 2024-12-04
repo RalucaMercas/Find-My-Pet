@@ -139,15 +139,13 @@ LOGOUT_REDIRECT_URL = '/login'
 AUTH_USER_MODEL = 'main.User'
 
 # Email Backend Configuration
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'lost.pet02@gmail.com'
-EMAIL_HOST_PASSWORD = 'bjch ovsi hnnl aivz'  # App password for Gmail
+EMAIL_HOST_PASSWORD = 'lykz ders iaay htdt'
 
-DEFAULT_FROM_EMAIL = 'lost.pet02@gmail.com'
 
 LOGIN_URL = '/login/'  # from '/reset/done' redirect to '/login' instead of the default '/accounts/login'
