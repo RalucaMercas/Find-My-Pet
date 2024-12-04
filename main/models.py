@@ -3,6 +3,7 @@ from django.db import models
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.exceptions import ValidationError
+from django.db import connection
 
 
 class User(AbstractUser):
@@ -26,13 +27,19 @@ class User(AbstractUser):
 
     groups = models.ManyToManyField(
         Group,
-        related_name="custom_user_set",
+        verbose_name='groups',
         blank=True,
+        help_text='The groups this user belongs to.',
+        related_name='user_set',
+        related_query_name='user',
     )
     user_permissions = models.ManyToManyField(
         Permission,
-        related_name="custom_user_permissions_set",
+        verbose_name='user permissions',
         blank=True,
+        help_text='Specific permissions for this user.',
+        related_name='user_set',
+        related_query_name='user',
     )
 
     def save(self, *args, **kwargs):
@@ -49,10 +56,6 @@ class User(AbstractUser):
             self.is_staff = False
         super().save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        self.groups.clear()
-        self.user_permissions.clear()
-        super().delete(*args, **kwargs)
 
     def is_admin(self):
         return self.role == self.Roles.ADMIN
