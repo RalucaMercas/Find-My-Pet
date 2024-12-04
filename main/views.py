@@ -25,3 +25,5 @@ def log_out(request):
     return redirect('/login')
     # return redirect('/home')
 
+def about(request):
+    return render(request, 'about.html')
