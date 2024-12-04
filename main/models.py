@@ -49,6 +49,11 @@ class User(AbstractUser):
             self.is_staff = False
         super().save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        self.groups.clear()
+        self.user_permissions.clear()
+        super().delete(*args, **kwargs)
+
     def is_admin(self):
         return self.role == self.Roles.ADMIN
 

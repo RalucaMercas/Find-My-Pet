@@ -4,13 +4,12 @@ from django.contrib.auth import login, logout, authenticate
 from .models import User
 
 def home(request):
-    if request.user.is_authenticated:  # Check if the user is logged in
-        user = request.user  # Explicitly assign request.user
-        if isinstance(user, User) and user.is_superadmin():  # Check if user is SuperAdmin
+    if request.user.is_authenticated:
+        user = request.user
+        if isinstance(user, User) and user.is_superadmin():
             return redirect('/admin')
-        return render(request, 'main/home.html')  # Normal users or admins go here
-    return redirect('/login')  # Redirect unauthenticated users
-    # return render(request, 'main/home.html')
+        return render(request, 'main/home.html')
+    return redirect('/login')
 
 
 def sign_up(request):
