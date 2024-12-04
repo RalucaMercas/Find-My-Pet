@@ -1,0 +1,33 @@
+{% extends 'main/base.html' %}
+{% block title %}Delete Account{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow" style="width: 30rem; padding: 20px; border-radius: 10px;">
+        <div class="card-body">
+            <h2 class="text-danger text-center">Delete Account</h2>
+            <p class="text-muted text-center">
+                Are you sure you want to delete your account? This action is irreversible.
+            </p>
+            {% if messages %}
+            <div class="alert alert-danger" role="alert">
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.password.label_tag }}
+                    {{ form.password }}
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-danger me-3">Yes, Delete My Account</button>
+                    <a href="/home" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

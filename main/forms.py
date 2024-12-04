@@ -5,6 +5,12 @@ from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
 from phonenumbers import parse, is_valid_number, NumberParseException, region_code_for_country_code
 
+from django.forms.widgets import PasswordInput
+
+
+class ConfirmPasswordForm(forms.Form):
+    password = forms.CharField(widget=PasswordInput(), label="Confirm Your Password")
+
 
 class RegisterForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True)
