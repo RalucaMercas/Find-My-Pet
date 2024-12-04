@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
+from django.core.exceptions import ValidationError
 
 
 class User(AbstractUser):
@@ -38,6 +39,8 @@ class User(AbstractUser):
         if self.role == self.Roles.SUPERADMIN:
             self.is_superuser = True
             self.is_staff = True
+            if User.objects.filter(role=self.Roles.SUPERADMIN).exists() and not self.pk:
+                raise ValidationError("There can only be one SuperAdmin.")
         elif self.role == self.Roles.ADMIN:
             self.is_superuser = False
             self.is_staff = True
