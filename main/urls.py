@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home, sign_up, log_out, about, DeleteAccountView
+from .views import home, sign_up, log_out, about, DeleteAccountView, EditProfileView
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -21,4 +21,6 @@ urlpatterns = [
          name='password_reset_complete'),
     path('about/', about, name='about'),
     path('delete_account/', DeleteAccountView.as_view(), name='delete_account'),
+    path('edit_profile/', EditProfileView.as_view(), name='edit_profile'),
+
 ]

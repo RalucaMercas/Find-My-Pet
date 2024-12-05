@@ -58,3 +58,21 @@ class RegisterForm(UserCreationForm):
             )
 
         return phone
+
+
+class EditProfileForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    email = forms.EmailField(required=True)
+
+    phone_number = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "Enter your phone number with country code"}),
+    )
+    country = CountryField().formfield(
+        required=True,
+        widget=CountrySelectWidget(attrs={"class": "form-control"}))
+
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "username", "email", "country", "phone_number"]

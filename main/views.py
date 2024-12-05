@@ -4,9 +4,12 @@ from django.contrib.auth import login, logout, authenticate
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
-from django.shortcuts import redirect
 from django.contrib import messages
+from django.views.generic.edit import UpdateView
 
+from .models import User
+from .forms import EditProfileForm
+from django.urls import reverse_lazy
 
 def home(request):
     return render(request, 'main/home.html')
@@ -59,3 +62,13 @@ class DeleteAccountView(LoginRequiredMixin, TemplateView):
 
 # TODO: if a user clicks on "Forgot password" on the login page, and the provided email is not in the database,
 #  the user should be warned that there is no account with that email address.
+
+
+class EditProfileView(UpdateView):
+    model = User
+    form_class = EditProfileForm
+    template_name = 'edit_profile.html'
+    success_url = reverse_lazy('home')
+
+    def get_object(self):
+        return self.request.user
