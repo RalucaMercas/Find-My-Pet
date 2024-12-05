@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 from .views import home, sign_up, log_out, about, DeleteAccountView, EditProfileView, create_post
 from django.contrib.auth import views as auth_views
@@ -24,3 +26,6 @@ urlpatterns = [
     path('edit_profile/', EditProfileView.as_view(), name='edit_profile'),
     path('create_post/<str:post_type>/', create_post, name='create_post'),
 ]
+
+if settings.DEBUG:  # Serve media files only in development
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

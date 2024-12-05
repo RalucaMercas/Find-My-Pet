@@ -101,6 +101,7 @@ class LostPostForm(BasePostForm):
         fields = [
             "title",
             "description",
+            "image",
             "pet_name",
             "area",
             "date_lost",
@@ -126,6 +127,7 @@ class FoundPostForm(BasePostForm):
         fields = [
             "title",
             "description",
+            "image",
             "area",
             "date_found",
             "pet_type",

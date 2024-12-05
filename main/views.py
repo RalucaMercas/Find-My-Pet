@@ -33,11 +33,10 @@ def home(request):
 
 @login_required(login_url='/login')
 def create_post(request, post_type):
-    # Determine the form class based on post_type
     form_class = LostPostForm if post_type == 'lost' else FoundPostForm
 
     if request.method == 'POST':
-        form = form_class(request.POST, user=request.user)
+        form = form_class(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             post = form.save(commit=False)
             post.user = request.user

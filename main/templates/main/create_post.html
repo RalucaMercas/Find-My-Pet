@@ -8,7 +8,7 @@
         <div class="card-body">
             <h2 class="card-title text-center">Create a {{ post_type }} Post</h2>
             <hr>
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="mb-3">
                     {{ form|crispy }}

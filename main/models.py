@@ -98,7 +98,9 @@ class LostPost(BasePost):
     reward = models.PositiveIntegerField(
         blank=True, null=True, help_text="Enter a reward amount (whole number) or leave blank."
     )
+    image = models.ImageField(upload_to='lost_pets/', blank=True, null=True)
 
 
 class FoundPost(BasePost):
     date_found = models.DateField()
+    image = models.ImageField(upload_to='found_pets/', blank=True, null=True)

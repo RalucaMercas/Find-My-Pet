@@ -147,5 +147,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'lost.pet02@gmail.com'
 EMAIL_HOST_PASSWORD = 'lykz ders iaay htdt'
 
-
 LOGIN_URL = '/login/'  # from '/reset/done' redirect to '/login' instead of the default '/accounts/login'
+
+MEDIA_URL = '/media/'  # URL to serve media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Directory to store uploaded files
