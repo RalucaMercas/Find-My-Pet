@@ -76,3 +76,27 @@ class EditProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["first_name", "last_name", "username", "email", "country", "phone_number"]
+
+
+class AdminUserCreationForm(UserCreationForm):
+    role = forms.ChoiceField(
+        choices=User.Roles.choices,
+        required=True,
+    )
+    phone_number = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "Enter the phone number with country code",
+                                      "style": "width: 25%;",
+                                      }),
+    )
+    country = CountryField().formfield(
+        required=True,
+        widget=CountrySelectWidget(attrs={"class": "form-control"})
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            "username", "first_name", "last_name", "email",
+            "phone_number", "country", "role", "password1", "password2"
+        ]
