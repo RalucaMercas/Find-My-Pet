@@ -11,36 +11,33 @@ from django.views.generic.edit import UpdateView
 from .models import User
 from .forms import EditProfileForm, LostPostForm, FoundPostForm
 from django.urls import reverse_lazy
+from django.contrib.contenttypes.models import ContentType
+from .models import PetImage
 
 
 def home(request):
     return render(request, 'main/home.html')
 
 
-# @login_required(login_url='/login')
-# def create_post(request):
-#     if request.method == 'POST':
-#         form = PostForm(request.POST, user=request.user)
-#         if form.is_valid():
-#             post = form.save(commit=False)
-#             post.author = request.user
-#             post.save()
-#             return redirect('/home')
-#     else:
-#         form = PostForm(user=request.user)
-#     return render(request, 'main/create_post.html', {'form': form})
-#
-
 @login_required(login_url='/login')
 def create_post(request, post_type):
     form_class = LostPostForm if post_type == 'lost' else FoundPostForm
 
     if request.method == 'POST':
-        form = form_class(request.POST, request.FILES, user=request.user)
+        form = form_class(request.POST, user=request.user)
         if form.is_valid():
             post = form.save(commit=False)
             post.user = request.user
             post.save()
+
+            images = request.FILES.getlist('images')
+            for image in images:
+                PetImage.objects.create(
+                    content_type=ContentType.objects.get_for_model(post.__class__),
+                    object_id=post.id,
+                    image=image
+                )
+
             return redirect('/home')
     else:
         form = form_class(user=request.user)

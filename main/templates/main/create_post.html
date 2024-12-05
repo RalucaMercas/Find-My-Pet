@@ -11,6 +11,11 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="mb-3">
+                    <label for="id_images" class="form-label">Upload Images</label>
+                    <input type="file" name="images" id="id_images" class="form-control" multiple>
+                    <small class="form-text text-muted">You can upload multiple images of the pet.</small>
+                </div>
+                <div class="mb-3">
                     {{ form|crispy }}
                 </div>
                 <div class="d-flex justify-content-center">

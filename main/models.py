@@ -3,6 +3,8 @@ from django.db import models
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 
 class User(AbstractUser):
@@ -98,9 +100,18 @@ class LostPost(BasePost):
     reward = models.PositiveIntegerField(
         blank=True, null=True, help_text="Enter a reward amount (whole number) or leave blank."
     )
-    image = models.ImageField(upload_to='lost_pets/', blank=True, null=True)
 
 
 class FoundPost(BasePost):
     date_found = models.DateField()
-    image = models.ImageField(upload_to='found_pets/', blank=True, null=True)
+
+
+class PetImage(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    post = GenericForeignKey('content_type', 'object_id')  # Generic relation to either LostPost or FoundPost
+    image = models.ImageField(upload_to='pet_images/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image for post: {self.post}"
