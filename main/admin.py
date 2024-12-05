@@ -5,19 +5,17 @@ from .forms import AdminUserCreationForm
 
 
 class UserAdmin(BaseUserAdmin):
-    # Displayed fields in the list view
     list_display = ('id', 'username', 'email', 'role', 'is_staff', 'first_name', 'last_name', 'country', 'phone_number')
     list_filter = ('role', 'is_staff', 'country')
     search_fields = ('username', 'email', 'country')
     ordering = ('role', 'id')
 
-    # Use a custom form for adding users
     add_form = AdminUserCreationForm
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
             'fields': (
-                'username', 'password1', 'password2',  # Include password fields
+                'username', 'password1', 'password2',
                 'first_name', 'last_name', 'email',
                 'role', 'phone_number', 'country',
             ),
@@ -25,10 +23,7 @@ class UserAdmin(BaseUserAdmin):
     )
 
     def get_fieldsets(self, request, obj=None):
-        """
-        Customize fieldsets dynamically based on whether it's a new or existing user.
-        """
-        if obj:  # Editing an existing user
+        if obj:
             return (
                 (None, {
                     'fields': (
@@ -37,24 +32,21 @@ class UserAdmin(BaseUserAdmin):
                     ),
                 }),
             )
-        else:  # Adding a new user
+        else:
             return self.add_fieldsets
 
     readonly_fields = ('last_login',)
 
     def get_form(self, request, obj=None, **kwargs):
-        """
-        Restrict available roles dynamically when adding users.
-        """
         form = super().get_form(request, obj, **kwargs)
-        if obj:  # Editing an existing user
+        if obj:
             role_field = form.base_fields.get('role')
             if role_field:
                 role_field.choices = [
                     (User.Roles.NORMAL_USER, 'Normal User'),
                     (User.Roles.ADMIN, 'Admin'),
                 ]
-        else:  # Adding a new user
+        else:
             role_field = form.base_fields.get('role')
             if role_field:
                 role_field.choices = [
@@ -64,20 +56,15 @@ class UserAdmin(BaseUserAdmin):
         return form
 
     def save_model(self, request, obj, form, change):
-        """
-        Ensure passwords are hashed before saving the user.
-        """
-        if not change:  # Only for new users
+        if not change:
             obj.set_password(form.cleaned_data["password1"])
         obj.save()
 
     def add_view(self, request, form_url='', extra_context=None):
-        """
-        Customize the add view to remove the default help text.
-        """
         extra_context = extra_context or {}
-        extra_context['subtitle'] = ''  # Remove or replace the subtitle
+        extra_context['subtitle'] = ''
         return super().add_view(request, form_url, extra_context)
 
 
 admin.site.register(User, UserAdmin)
+
