@@ -22,5 +22,5 @@ urlpatterns = [
     path('about/', about, name='about'),
     path('delete_account/', DeleteAccountView.as_view(), name='delete_account'),
     path('edit_profile/', EditProfileView.as_view(), name='edit_profile'),
-    path('create_post/', create_post, name='create_post'),
+    path('create_post/<str:post_type>/', create_post, name='create_post'),
 ]

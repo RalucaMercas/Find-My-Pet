@@ -2,7 +2,7 @@ from datetime import date
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, Post
+from .models import User, LostPost, FoundPost
 from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
 from phonenumbers import parse, is_valid_number, NumberParseException, region_code_for_country_code
@@ -80,9 +80,24 @@ class EditProfileForm(forms.ModelForm):
         fields = ["first_name", "last_name", "username", "email", "country", "phone_number"]
 
 
-class PostForm(forms.ModelForm):
+class BasePostForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and isinstance(user, User):
+            self.fields['email'].initial = user.email
+            self.fields['phone_number'].initial = user.phone_number
+
+    def clean_date(self, field_name):
+        date_value = self.cleaned_data.get(field_name)
+        if date_value and date_value > date.today():
+            raise forms.ValidationError("The date cannot be in the future.")
+        return date_value
+
+
+class LostPostForm(BasePostForm):
     class Meta:
-        model = Post
+        model = LostPost
         fields = [
             "title",
             "description",
@@ -101,15 +116,25 @@ class PostForm(forms.ModelForm):
 
         }
 
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        if user and isinstance(user, User):
-            self.fields['email'].initial = user.email
-            self.fields['phone_number'].initial = user.phone_number
-
     def clean_date_lost(self):
-        date_lost = self.cleaned_data.get('date_lost')
-        if date_lost and date_lost > date.today():
-            raise forms.ValidationError("The date cannot be in the future.")
-        return date_lost
+        return self.clean_date('date_lost')
+
+
+class FoundPostForm(BasePostForm):
+    class Meta:
+        model = FoundPost
+        fields = [
+            "title",
+            "description",
+            "area",
+            "date_found",
+            "pet_type",
+            "email",
+            "phone_number",
+        ]
+        widgets = {
+            'date_found': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def clean_date_found(self):
+        return self.clean_date('date_found')

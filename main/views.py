@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.views.generic.edit import UpdateView
 
 from .models import User
-from .forms import EditProfileForm, PostForm
+from .forms import EditProfileForm, LostPostForm, FoundPostForm
 from django.urls import reverse_lazy
 
 
@@ -17,18 +17,36 @@ def home(request):
     return render(request, 'main/home.html')
 
 
+# @login_required(login_url='/login')
+# def create_post(request):
+#     if request.method == 'POST':
+#         form = PostForm(request.POST, user=request.user)
+#         if form.is_valid():
+#             post = form.save(commit=False)
+#             post.author = request.user
+#             post.save()
+#             return redirect('/home')
+#     else:
+#         form = PostForm(user=request.user)
+#     return render(request, 'main/create_post.html', {'form': form})
+#
+
 @login_required(login_url='/login')
-def create_post(request):
+def create_post(request, post_type):
+    # Determine the form class based on post_type
+    form_class = LostPostForm if post_type == 'lost' else FoundPostForm
+
     if request.method == 'POST':
-        form = PostForm(request.POST, user=request.user)
+        form = form_class(request.POST, user=request.user)
         if form.is_valid():
             post = form.save(commit=False)
-            post.author = request.user
+            post.user = request.user
             post.save()
             return redirect('/home')
     else:
-        form = PostForm(user=request.user)
-    return render(request, 'main/create_post.html', {'form': form})
+        form = form_class(user=request.user)
+
+    return render(request, 'main/create_post.html', {'form': form, 'post_type': post_type.capitalize()})
 
 
 def sign_up(request):
