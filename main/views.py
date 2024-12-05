@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .forms import RegisterForm, ConfirmPasswordForm
 from django.contrib.auth import login, logout, authenticate
@@ -8,11 +9,26 @@ from django.contrib import messages
 from django.views.generic.edit import UpdateView
 
 from .models import User
-from .forms import EditProfileForm
+from .forms import EditProfileForm, PostForm
 from django.urls import reverse_lazy
+
 
 def home(request):
     return render(request, 'main/home.html')
+
+
+@login_required(login_url='/login')
+def create_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST, user=request.user)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect('/home')
+    else:
+        form = PostForm(user=request.user)
+    return render(request, 'main/create_post.html', {'form': form})
 
 
 def sign_up(request):
@@ -52,13 +68,13 @@ class DeleteAccountView(LoginRequiredMixin, TemplateView):
             user = authenticate(username=request.user.username, password=password)
             if user:
                 user.delete()
-                # messages.success(request, "Your account has been deleted successfully.")
                 return redirect('home')
             else:
                 messages.error(request, "Incorrect password. Please try again.")
         else:
             messages.error(request, "Please confirm your password.")
         return render(request, self.template_name, {'form': form})
+
 
 # TODO: if a user clicks on "Forgot password" on the login page, and the provided email is not in the database,
 #  the user should be warned that there is no account with that email address.

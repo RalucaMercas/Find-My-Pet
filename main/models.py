@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
+from django.conf import settings
 
 
 class User(AbstractUser):
@@ -54,3 +55,41 @@ class User(AbstractUser):
 
     def is_normal_user(self):
         return self.role == self.Roles.NORMAL_USER
+
+
+class Post(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='posts',
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    pet_name = models.CharField(max_length=255)
+    area = models.CharField(max_length=255)
+    date_lost = models.DateField()
+
+    PET_TYPE_CHOICES = [
+        ('cat', 'Cat'),
+        ('dog', 'Dog'),
+        ('other', 'Other'),
+    ]
+    pet_type = models.CharField(max_length=10, choices=PET_TYPE_CHOICES)
+    SEX_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+    ]
+    pet_sex = models.CharField(max_length=10, choices=SEX_CHOICES)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=15)
+    reward = models.PositiveIntegerField(
+        blank=True, null=True, help_text="Enter a reward amount (whole number) or leave blank."
+    )
+    class Meta:
+        ordering = ['-created_at']  # Default ordering: newest posts first
+
+    def __str__(self):
+        return self.title

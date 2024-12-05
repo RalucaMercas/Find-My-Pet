@@ -1,6 +1,8 @@
+from datetime import date
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User
+from .models import User, Post
 from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
 from phonenumbers import parse, is_valid_number, NumberParseException, region_code_for_country_code
@@ -76,3 +78,38 @@ class EditProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["first_name", "last_name", "username", "email", "country", "phone_number"]
+
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = [
+            "title",
+            "description",
+            "pet_name",
+            "area",
+            "date_lost",
+            "pet_type",
+            "pet_sex",
+            "email",
+            "phone_number",
+            "reward",
+        ]
+        widgets = {
+            'date_lost': forms.DateInput(attrs={'type': 'date'}),
+            'reward': forms.NumberInput(attrs={'placeholder': 'Reward in €'}),
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and isinstance(user, User):
+            self.fields['email'].initial = user.email
+            self.fields['phone_number'].initial = user.phone_number
+
+    def clean_date_lost(self):
+        date_lost = self.cleaned_data.get('date_lost')
+        if date_lost and date_lost > date.today():
+            raise forms.ValidationError("The date cannot be in the future.")
+        return date_lost
