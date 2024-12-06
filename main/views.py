@@ -20,16 +20,17 @@ def home(request):
     post_type = request.GET.get('post_type', 'lost')  # Default to 'lost'
 
     if post_type == 'lost':
-        posts = LostPost.objects.prefetch_related('images').order_by('-created_at')
+        posts = LostPost.objects.filter(is_archived=False).prefetch_related('images').order_by('-created_at')
     elif post_type == 'found':
-        posts = FoundPost.objects.prefetch_related('images').order_by('-created_at')
+        posts = FoundPost.objects.filter(is_archived=False).prefetch_related('images').order_by('-created_at')
     else:
-        posts = []  # Handle invalid post_type
+        posts = []
 
     return render(request, 'main/home.html', {
         'posts': posts,
         'post_type': post_type,
     })
+
 
 @login_required(login_url='/login')
 def create_post(request, post_type):

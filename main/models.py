@@ -80,6 +80,7 @@ class BasePost(models.Model):
     email = models.EmailField()
     phone_number = models.CharField(max_length=15)
     images = GenericRelation('PetImage')
+    is_archived = models.BooleanField(default=False)
 
     class Meta:
         abstract = True  # This model will not create its own table
