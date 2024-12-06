@@ -8,15 +8,26 @@ from django.views.generic import TemplateView
 from django.contrib import messages
 from django.views.generic.edit import UpdateView
 
-from .models import User
+from .models import User, LostPost, FoundPost, PetImage
 from .forms import EditProfileForm, LostPostForm, FoundPostForm
 from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
-from .models import PetImage
+from django.shortcuts import render
 
 
 def home(request):
-    return render(request, 'main/home.html')
+    post_type = request.GET.get('post_type', 'lost')
+    if post_type == 'lost':
+        posts = LostPost.objects.all().order_by('-created_at')
+    elif post_type == 'found':
+        posts = FoundPost.objects.all().order_by('-created_at')
+    else:
+        posts = []
+
+    return render(request, 'main/home.html', {
+        'posts': posts,
+        'post_type': post_type
+    })
 
 
 @login_required(login_url='/login')
