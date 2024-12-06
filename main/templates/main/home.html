@@ -23,12 +23,13 @@
         <div class="card-body">
             <h5 class="card-title">{{ post.title }}</h5>
             <p>{{ post.description }}</p>
+            <p><strong>Area:</strong> {{ post.area }}</p> 
             <div class="row g-2">
                 {% for image in post.images.all %}
                 <div class="col-md-2">
                     <img src="{{ image.image.url }}" alt="Image for {{ post.title }}"
                          class="img-thumbnail"
-                         style="width: 100%; max-width: 200px; height: auto; object-fit: cover;"> 
+                         style="width: 100%; max-width: 200px; height: auto; object-fit: cover;">
                 </div>
                 {% empty %}
                 <p>No images available for this post.</p>
