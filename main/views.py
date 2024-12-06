@@ -26,9 +26,29 @@ def home(request):
     else:
         posts = []
 
-    return render(request, 'main/home.html', {
+    return render(request, 'main/show_posts.html', {
         'posts': posts,
         'post_type': post_type,
+        'page_title': 'Home Page',
+
+    })
+
+
+@login_required
+def my_posts(request):
+    post_type = request.GET.get('post_type', 'lost')  # Default to 'lost'
+
+    if post_type == 'lost':
+        posts = LostPost.objects.filter(user=request.user).prefetch_related('images').order_by('-created_at')
+    elif post_type == 'found':
+        posts = FoundPost.objects.filter(user=request.user).prefetch_related('images').order_by('-created_at')
+    else:
+        posts = []
+
+    return render(request, 'main/show_posts.html', {
+        'posts': posts,
+        'post_type': post_type,
+        'page_title': 'My Posts',
     })
 
 
@@ -115,3 +135,5 @@ class EditProfileView(UpdateView):
 
     def get_object(self):
         return self.request.user
+
+

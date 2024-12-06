@@ -1,10 +1,10 @@
 {% extends 'main/base.html' %}
-{% block title %}Home Page{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
-        <h2>Home Page</h2>
+        <h2>{{ page_title }}</h2>
         <form method="get" class="d-flex">
             <label>
                 <select name="post_type" class="form-select me-2" onchange="this.form.submit()">
