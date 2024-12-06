@@ -23,12 +23,12 @@
         <div class="card-body">
             <h5 class="card-title">{{ post.title }}</h5>
             <p>{{ post.description }}</p>
-
-            <!-- Display images -->
-            <div class="row">
+            <div class="row g-2">
                 {% for image in post.images.all %}
-                <div class="col-md-4 mb-3">
-                    <img src="{{ image.image.url }}" alt="Image for {{ post.title }}" class="img-thumbnail" style="max-width: 300px; max-height: 300px; object-fit: cover;">
+                <div class="col-md-2">
+                    <img src="{{ image.image.url }}" alt="Image for {{ post.title }}"
+                         class="img-thumbnail"
+                         style="width: 100%; max-width: 200px; height: auto; object-fit: cover;"> 
                 </div>
                 {% empty %}
                 <p>No images available for this post.</p>
@@ -42,6 +42,7 @@
     {% empty %}
     <p>No posts yet :(</p>
     {% endfor %}
+
 
 </div>
 {% endblock %}
