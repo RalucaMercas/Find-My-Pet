@@ -3,7 +3,7 @@ from django.db import models
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -79,6 +79,7 @@ class BasePost(models.Model):
     pet_type = models.CharField(max_length=10, choices=PET_TYPE_CHOICES)
     email = models.EmailField()
     phone_number = models.CharField(max_length=15)
+    images = GenericRelation('PetImage')
 
     class Meta:
         abstract = True  # This model will not create its own table
