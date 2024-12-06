@@ -55,6 +55,10 @@ class UserAdmin(BaseUserAdmin):
                 ]
         return form
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.exclude(role=User.Roles.SUPERADMIN)
+
     def save_model(self, request, obj, form, change):
         if not change:
             obj.set_password(form.cleaned_data["password1"])
@@ -63,8 +67,7 @@ class UserAdmin(BaseUserAdmin):
     def add_view(self, request, form_url='', extra_context=None):
         extra_context = extra_context or {}
         extra_context['subtitle'] = ''
-        return super().add_view(request, form_url, extra_context)
-
+        return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
 admin.site.register(User, UserAdmin)
 
