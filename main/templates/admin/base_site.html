@@ -1,7 +1,21 @@
 {% extends "admin/base.html" %}
+{% load i18n %}
 
 {% block title %}{% endblock %}
 
 {% block branding %}
 <!-- Optionally add custom branding or leave it blank -->
+{% endblock %}
+
+{% block sidebar %}
+    {{ block.super }}
+    {% if user.is_superuser %}
+        <div class="app-main">
+            <h2>
+                <a href="{% url 'admin:main_user_changelist' %}">
+                    {% translate 'Manage Users' %}
+                </a>
+            </h2>
+        </div>
+    {% endif %}
 {% endblock %}

@@ -3,7 +3,13 @@
 {% for app in app_list %}
     {% if app.name != 'Authentication and Authorization' %}
         <div class="app-main">
-            <h2>{{ app.name }}</h2>
+            <h2>
+                {% if user.is_superuser and app.name == "Main" %}
+                    Manage Users
+                {% else %}
+                    {{ app.name }}
+                {% endif %}
+            </h2>
             <table>
                 <tbody>
                     {% for model in app.models %}

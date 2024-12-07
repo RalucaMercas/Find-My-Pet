@@ -1,0 +1,18 @@
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    {% if app_label %}
+        &rsaquo;
+        {% if app_label == 'main' and user.is_superuser %}
+            <a href="{% url 'admin:main_user_changelist' %}">
+                {% translate 'Manage Users' %}
+            </a>
+        {% else %}
+            <a href="{% url 'admin:app_list' app_label=app_label %}">
+                {{ app_label|capfirst }}
+            </a>
+        {% endif %}
+    {% endif %}
+    {% if object_name %}
+        &rsaquo; {{ object_name|capfirst }}
+    {% endif %}
+</div>

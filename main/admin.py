@@ -2,11 +2,29 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User
 from .forms import AdminUserCreationForm
+from django.contrib.admin import SimpleListFilter
+
+
+class RoleWithoutSuperAdminFilter(SimpleListFilter):
+    title = 'role'
+    parameter_name = 'role'
+
+    def lookups(self, request, model_admin):
+        roles = [
+            (User.Roles.NORMAL_USER, 'Normal User'),
+            (User.Roles.ADMIN, 'Admin'),
+        ]
+        return roles
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(role=self.value())
+        return queryset
 
 
 class UserAdmin(BaseUserAdmin):
     list_display = ('id', 'username', 'email', 'role', 'is_staff', 'first_name', 'last_name', 'country', 'phone_number')
-    list_filter = ('role', 'is_staff', 'country')
+    list_filter = (RoleWithoutSuperAdminFilter, 'country')
     search_fields = ('username', 'email', 'country')
     ordering = ('role', 'id')
 
@@ -68,6 +86,7 @@ class UserAdmin(BaseUserAdmin):
         extra_context = extra_context or {}
         extra_context['subtitle'] = ''
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
+
 
 admin.site.register(User, UserAdmin)
 
