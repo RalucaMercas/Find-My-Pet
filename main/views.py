@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, ConfirmPasswordForm
+from .forms import RegisterForm, ConfirmPasswordForm, EditProfileForm, LostPostForm, FoundPostForm
 from django.contrib.auth import login, logout, authenticate
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,10 +9,8 @@ from django.contrib import messages
 from django.views.generic.edit import UpdateView
 
 from .models import User, LostPost, FoundPost, PetImage
-from .forms import EditProfileForm, LostPostForm, FoundPostForm
 from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import render
 
 
 def home(request):
@@ -75,7 +72,12 @@ def create_post(request, post_type):
     else:
         form = form_class(user=request.user)
 
-    return render(request, 'main/create_post.html', {'form': form, 'post_type': post_type.capitalize()})
+    return render(request, 'main/create_post.html', {
+        'form': form,
+        'post_type': post_type.capitalize(),
+        'is_edit': False,
+        'is_view': False,
+    })
 
 
 def sign_up(request):
@@ -139,7 +141,27 @@ class EditProfileView(UpdateView):
 
 @login_required
 def edit_post(request, post_id):
-    pass
+    post_type = request.GET.get('post_type', 'lost')
+    post_model = LostPost if post_type == 'lost' else FoundPost
+    post = get_object_or_404(post_model, id=post_id, user=request.user)
+
+    form_class = LostPostForm if post_type == 'lost' else FoundPostForm
+
+    if request.method == 'POST':
+        form = form_class(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Post updated successfully.")
+        return redirect(f'/my_posts/?post_type={post_type}')
+    else:
+        form = form_class(instance=post)
+
+    return render(request, 'main/create_post.html', {
+        'form': form,
+        'post_type': post_type.capitalize(),
+        'is_edit': True,
+        'is_view': False,
+    })
 
 
 @login_required
@@ -166,4 +188,19 @@ def delete_post(request, post_id):
 
 @login_required
 def post_detail(request, post_id):
-    pass
+    post_type = request.GET.get('post_type', 'lost')
+    post_model = LostPost if post_type == 'lost' else FoundPost
+    post = get_object_or_404(post_model, id=post_id)
+
+    form_class = LostPostForm if post_type == 'lost' else FoundPostForm
+    form = form_class(instance=post)
+
+    for field in form.fields.values():
+        field.disabled = True  # Make all fields read-only
+
+    return render(request, 'main/create_post.html', {
+        'form': form,
+        'post_type': post_type.capitalize(),
+        'is_edit': False,
+        'is_view': True,
+    })

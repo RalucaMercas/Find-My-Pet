@@ -1,26 +1,36 @@
 {% extends 'main/base.html' %}
-{% block title %}Create {{ post_type }} Post{% endblock %}
+{% block title %}
+    {% if is_edit %}Edit {{ post_type }} Post{% elif is_view %}View Details{% else %}Create {{ post_type }} Post{% endif %}
+{% endblock %}
 {% load crispy_forms_tags %}
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card shadow" style="width: 36rem; padding: 20px; border-radius: 10px;">
         <div class="card-body">
-            <h2 class="card-title text-center">Create a {{ post_type }} Post</h2>
+            <h2 class="card-title text-center">
+                {% if is_edit %}Edit {{ post_type }} Post{% elif is_view %}View Details{% else %}Create a {{ post_type }} Post{% endif %}
+            </h2>
             <hr>
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
+                {% if not is_view %}
                 <div class="mb-3">
                     <label for="id_images" class="form-label">Upload Images</label>
                     <input type="file" name="images" id="id_images" class="form-control" multiple>
                     <small class="form-text text-muted">You can upload multiple images of the pet.</small>
                 </div>
+                {% endif %}
                 <div class="mb-3">
                     {{ form|crispy }}
                 </div>
+                {% if not is_view %}
                 <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn btn-success">Post</button>
+                    <button type="submit" class="btn btn-success">
+                        {% if is_edit %}Save Changes{% else %}Post{% endif %}
+                    </button>
                 </div>
+                {% endif %}
             </form>
         </div>
     </div>
