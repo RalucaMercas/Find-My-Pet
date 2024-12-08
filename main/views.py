@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm, ConfirmPasswordForm
 from django.contrib.auth import login, logout, authenticate
 
@@ -137,3 +137,33 @@ class EditProfileView(UpdateView):
         return self.request.user
 
 
+@login_required
+def edit_post(request, post_id):
+    pass
+
+
+@login_required
+def delete_post(request, post_id):
+    post_type = request.GET.get('post_type')
+    if post_type == 'lost':
+        post_model = LostPost
+    elif post_type == 'found':
+        post_model = FoundPost
+    else:
+        messages.error(request, "Invalid post type.")
+        return redirect('my_posts')
+
+    post = get_object_or_404(post_model, id=post_id, user=request.user)
+
+    if request.method == 'POST':
+        post.delete()
+        messages.success(request, "Post deleted successfully.")
+        return redirect(f'/my_posts/?post_type={post_type}')
+
+    messages.error(request, "Invalid request method.")
+    return redirect('my_posts')
+
+
+@login_required
+def post_detail(request, post_id):
+    pass

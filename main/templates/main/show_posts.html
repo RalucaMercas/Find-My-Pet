@@ -36,8 +36,22 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="card-footer text-muted">
-            {{ post.created_at }}
+        <div class="card-footer text-muted d-flex justify-content-between">
+            <span>{{ post.created_at }}</span>
+            {% if page_title == "Home Page" %}
+            <a href="{% url 'post_detail' post.id %}" class="btn btn-primary btn-sm">View Details</a>
+            {% elif page_title == "My Posts" %}
+            <div>
+                <a href="{% url 'edit_post' post.id %}" class="btn btn-warning btn-sm">Edit</a>
+                <form method="post" action="{% url 'delete_post' post.id %}?post_type={{ post_type }}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to delete this post?');">
+                        Delete
+                    </button>
+                </form>
+            </div>
+            {% endif %}
         </div>
     </div>
     {% empty %}
