@@ -39,7 +39,7 @@
         <div class="card-footer text-muted d-flex justify-content-between">
             <span>{{ post.created_at }}</span>
             {% if page_title == "Home Page" %}
-            <a href="{% url 'post_detail' post.id %}" class="btn btn-primary btn-sm">View Details</a>
+            <a href="{% url 'post_detail' post.id %}?post_type={{ post_type }}" class="btn btn-primary btn-sm">View Details</a>
             {% elif page_title == "My Posts" %}
             <div>
                 <a href="{% url 'edit_post' post.id %}?post_type={{ post_type }}" class="btn btn-warning btn-sm">Edit</a>

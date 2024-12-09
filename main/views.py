@@ -225,7 +225,6 @@ def post_detail(request, post_id):
     for field in form.fields.values():
         field.required = False
         field.disabled = True
-
     return render(request, 'main/create_post.html', {
                 'form': form,
                 'post_type': post_type.capitalize(),
