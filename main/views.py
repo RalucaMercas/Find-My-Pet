@@ -195,12 +195,18 @@ def post_detail(request, post_id):
     form_class = LostPostForm if post_type == 'lost' else FoundPostForm
     form = form_class(instance=post)
 
+    if 'reward' in form.fields:
+        reward_value = f"{form.instance.reward} $" if form.instance.reward else "No reward"
+        form.fields['reward'].widget.attrs['placeholder'] = reward_value
+        form.fields['reward'].help_text = ''
+
     for field in form.fields.values():
-        field.disabled = True  # Make all fields read-only
+        field.required = False
+        field.disabled = True
 
     return render(request, 'main/create_post.html', {
-        'form': form,
-        'post_type': post_type.capitalize(),
-        'is_edit': False,
-        'is_view': True,
-    })
+                'form': form,
+                'post_type': post_type.capitalize(),
+                'is_edit': False,
+                'is_view': True,
+        })

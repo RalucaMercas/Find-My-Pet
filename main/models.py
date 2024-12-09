@@ -99,8 +99,10 @@ class LostPost(BasePost):
         ('female', 'Female'),
     ]
     pet_sex = models.CharField(max_length=10, choices=SEX_CHOICES)
-    reward = models.PositiveIntegerField(
-        blank=True, null=True, help_text="Enter a reward amount (whole number) or leave blank."
+    reward = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Leave blank if you don't want to offer a reward."
     )
 
 

@@ -112,8 +112,12 @@ class LostPostForm(BasePostForm):
         ]
         widgets = {
             'date_lost': forms.DateInput(attrs={'type': 'date'}),
-            'reward': forms.NumberInput(attrs={'placeholder': 'Reward in €'}),
-
+            'reward': forms.TextInput(attrs={
+                'placeholder': 'Enter reward',
+            }),
+        }
+        labels = {
+            'reward': 'Reward (in €)',  # Change the field name
         }
 
     def clean_date_lost(self):
