@@ -33,7 +33,7 @@ def home(request):
 
 @login_required
 def my_posts(request):
-    post_type = request.GET.get('post_type', 'lost')  # Default to 'lost'
+    post_type = request.GET.get('post_type', 'lost')
 
     if post_type == 'lost':
         posts = LostPost.objects.filter(user=request.user).prefetch_related('images').order_by('-created_at')
@@ -146,21 +146,37 @@ def edit_post(request, post_id):
     post = get_object_or_404(post_model, id=post_id, user=request.user)
 
     form_class = LostPostForm if post_type == 'lost' else FoundPostForm
+    form = form_class(instance=post, data=request.POST or None)
 
     if request.method == 'POST':
-        form = form_class(request.POST, instance=post)
         if form.is_valid():
-            form.save()
+            post = form.save()
+
+            # Handle removed images
+            removed_image_ids = request.POST.get('removed_existing_images', '')
+            if removed_image_ids:
+                removed_image_ids = [int(image_id) for image_id in removed_image_ids.split(',')]
+                PetImage.objects.filter(id__in=removed_image_ids).delete()
+
+            # Handle newly uploaded images
+            images = request.FILES.getlist('images')
+            for image in images:
+                PetImage.objects.create(
+                    content_type=ContentType.objects.get_for_model(post.__class__),
+                    object_id=post.id,
+                    image=image
+                )
+
             messages.success(request, "Post updated successfully.")
         return redirect(f'/my_posts/?post_type={post_type}')
-    else:
-        form = form_class(instance=post)
 
+    existing_images = post.images.all()
     return render(request, 'main/create_post.html', {
         'form': form,
         'post_type': post_type.capitalize(),
         'is_edit': True,
         'is_view': False,
+        'existing_images': existing_images,
     })
 
 

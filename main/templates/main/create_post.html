@@ -1,6 +1,6 @@
 {% extends 'main/base.html' %}
 {% block title %}
-    {% if is_edit %}Edit {{ post_type }} Post{% elif is_view %}View Details{% else %}Create {{ post_type }} Post{% endif %}
+{% if is_edit %}Edit {{ post_type }} Post{% elif is_view %}View Details{% else %}Create {{ post_type }} Post{% endif %}
 {% endblock %}
 {% load crispy_forms_tags %}
 
@@ -37,7 +37,7 @@
         position: absolute;
         top: 5px;
         right: 5px;
-        background-color: #dc3545; /* Red for delete */
+        background-color: #dc3545;
         color: white;
         border: none;
         border-radius: 50%;
@@ -53,7 +53,6 @@
     }
 </style>
 
-
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card shadow" style="width: 36rem; padding: 20px; border-radius: 10px;">
         <div class="card-body">
@@ -68,12 +67,26 @@
             {% endif %}
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
+                {% if is_edit %}
+                <div class="mb-3">
+                    <label class="form-label">Uploaded Images</label>
+                    <div id="existing-image-preview" class="image-preview">
+                        {% for image in existing_images %}
+                        <div class="image-container" data-image-id="{{ image.id }}">
+                            <img src="{{ image.image.url }}" alt="Image for {{ post.title }}" class="img-thumbnail">
+                            <button type="button" class="remove-image" data-image-id="{{ image.id }}">&times;</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="removed_existing_images" id="removed-existing-images">
+                </div>
+                {% endif %}
                 {% if not is_view %}
                 <div class="mb-3">
                     <label for="id_images" class="form-label">Upload Images</label>
-                    <input type="file" name="images" id="id_images" class="form-control" multiple onchange="previewImages()">
+                    <input type="file" name="images" id="id_images" class="form-control" multiple onchange="previewNewImages()">
                     <small class="form-text text-muted">You can upload multiple images of the pet.</small>
-                    <div id="image-preview" class="image-preview"></div>
+                    <div id="new-image-preview" class="image-preview"></div>
                 </div>
                 {% endif %}
                 <div class="mb-3">
@@ -93,9 +106,31 @@
 
 <script>
     const selectedFiles = [];
+    const removedImageIds = [];
 
-    function previewImages() {
-        const previewContainer = document.getElementById('image-preview');
+    document.addEventListener("DOMContentLoaded", () => {
+        const existingImagePreview = document.getElementById("existing-image-preview");
+        const removedImagesInput = document.getElementById("removed-existing-images");
+
+        if (existingImagePreview) {
+            existingImagePreview.addEventListener("click", function (e) {
+                if (e.target.classList.contains("remove-image")) {
+                    const imageContainer = e.target.closest(".image-container");
+                    const imageId = e.target.dataset.imageId;
+
+                    // Add the image ID to the list of removed images
+                    removedImageIds.push(imageId);
+                    removedImagesInput.value = removedImageIds.join(",");
+
+                    // Remove the image container from the preview
+                    imageContainer.remove();
+                }
+            });
+        }
+    });
+
+    function previewNewImages() {
+        const previewContainer = document.getElementById('new-image-preview');
         const fileInput = document.getElementById('id_images');
         const files = Array.from(fileInput.files);
 
@@ -121,7 +156,7 @@
                 removeButton.classList.add('remove-image');
                 removeButton.innerHTML = '&times;';
                 removeButton.onclick = function () {
-                    removeImage(index);
+                    removeNewImage(index);
                 };
                 imageContainer.appendChild(removeButton);
 
@@ -132,8 +167,8 @@
         });
     }
 
-    function removeImage(index) {
-        const previewContainer = document.getElementById('image-preview');
+    function removeNewImage(index) {
+        const previewContainer = document.getElementById('new-image-preview');
         const fileInput = document.getElementById('id_images');
 
         // Remove the image container
@@ -152,7 +187,7 @@
         fileInput.files = dataTransfer.files;
 
         // Refresh previews
-        previewImages();
+        previewNewImages();
     }
 </script>
 
