@@ -44,6 +44,15 @@ class UserAdmin(BaseUserAdmin):
             ),
         }),
     )
+    fieldsets = (
+        (None, {
+            'fields': (
+                'username',
+                'first_name', 'last_name', 'email',
+                'role', 'phone_number', 'country',
+            ),
+        }),
+    )
 
     def is_request_user_superadmin(self, request):
         return request.user.is_authenticated and hasattr(request.user, 'is_superadmin') and request.user.is_superadmin
