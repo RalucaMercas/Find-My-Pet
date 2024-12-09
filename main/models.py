@@ -5,6 +5,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.db import connection
 
 
 class User(AbstractUser):
@@ -28,19 +30,27 @@ class User(AbstractUser):
 
     groups = models.ManyToManyField(
         Group,
-        related_name="custom_user_set",
+        verbose_name='groups',
         blank=True,
+        help_text='The groups this user belongs to.',
+        related_name='user_set',
+        related_query_name='user',
     )
     user_permissions = models.ManyToManyField(
         Permission,
-        related_name="custom_user_permissions_set",
+        verbose_name='user permissions',
         blank=True,
+        help_text='Specific permissions for this user.',
+        related_name='user_set',
+        related_query_name='user',
     )
 
     def save(self, *args, **kwargs):
         if self.role == self.Roles.SUPERADMIN:
             self.is_superuser = True
             self.is_staff = True
+            if User.objects.filter(role=self.Roles.SUPERADMIN).exists() and not self.pk:
+                raise ValidationError("There can only be one SuperAdmin.")
         elif self.role == self.Roles.ADMIN:
             self.is_superuser = False
             self.is_staff = True
@@ -48,6 +58,7 @@ class User(AbstractUser):
             self.is_superuser = False
             self.is_staff = False
         super().save(*args, **kwargs)
+
 
     def is_admin(self):
         return self.role == self.Roles.ADMIN

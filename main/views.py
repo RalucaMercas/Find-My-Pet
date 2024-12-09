@@ -14,6 +14,12 @@ from django.contrib.contenttypes.models import ContentType
 
 
 def home(request):
+    if request.user.is_authenticated:
+        user = request.user
+        if isinstance(user, User) and user.is_superadmin():
+            return redirect('/admin')
+    #     return render(request, 'main/home.html')
+    # return redirect('/login')
     post_type = request.GET.get('post_type', 'lost')  # Default to 'lost'
 
     if post_type == 'lost':
