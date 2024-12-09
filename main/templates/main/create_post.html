@@ -5,6 +5,18 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+<style>
+    .highlight-field {
+        background-color: #d4edda;
+        border: 2px solid #c3e6cb;
+        color: #155724;
+        font-weight: bold;
+        border-radius: 0.375rem;
+        padding: 0.5rem;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card shadow" style="width: 36rem; padding: 20px; border-radius: 10px;">
         <div class="card-body">
@@ -12,6 +24,11 @@
                 {% if is_edit %}Edit {{ post_type }} Post{% elif is_view %}View Details{% else %}Create a {{ post_type }} Post{% endif %}
             </h2>
             <hr>
+            {% if is_view %}
+            <div class="alert alert-success text-center">
+                Did you find this pet? <strong>Contact the owner</strong> using the details below!
+            </div>
+            {% endif %}
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% if not is_view %}

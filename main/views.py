@@ -200,6 +200,12 @@ def post_detail(request, post_id):
         form.fields['reward'].widget.attrs['placeholder'] = reward_value
         form.fields['reward'].help_text = ''
 
+    for field_name in ['email', 'phone_number']:
+        if field_name in form.fields:
+            form.fields[field_name].widget.attrs.update({
+                'class': 'form-control highlight-field',
+            })
+
     for field in form.fields.values():
         field.required = False
         field.disabled = True
@@ -209,4 +215,8 @@ def post_detail(request, post_id):
                 'post_type': post_type.capitalize(),
                 'is_edit': False,
                 'is_view': True,
+                'highlight_fields': {
+                    'email': form.instance.email,
+                    'phone_number': form.instance.phone_number,
+                }
         })
