@@ -15,7 +15,44 @@
         padding: 0.5rem;
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     }
+    .image-preview {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    .image-container {
+        position: relative;
+        display: inline-block;
+    }
+    .image-container img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        padding: 5px;
+    }
+    .image-container .remove-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: #dc3545; /* Red for delete */
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        z-index: 10;
+    }
 </style>
+
 
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card shadow" style="width: 36rem; padding: 20px; border-radius: 10px;">
@@ -34,8 +71,9 @@
                 {% if not is_view %}
                 <div class="mb-3">
                     <label for="id_images" class="form-label">Upload Images</label>
-                    <input type="file" name="images" id="id_images" class="form-control" multiple>
+                    <input type="file" name="images" id="id_images" class="form-control" multiple onchange="previewImages()">
                     <small class="form-text text-muted">You can upload multiple images of the pet.</small>
+                    <div id="image-preview" class="image-preview"></div>
                 </div>
                 {% endif %}
                 <div class="mb-3">
@@ -52,4 +90,70 @@
         </div>
     </div>
 </div>
+
+<script>
+    const selectedFiles = [];
+
+    function previewImages() {
+        const previewContainer = document.getElementById('image-preview');
+        const fileInput = document.getElementById('id_images');
+        const files = Array.from(fileInput.files);
+
+        // Clear previous previews
+        previewContainer.innerHTML = '';
+        selectedFiles.length = 0;
+
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                // Create image container
+                const imageContainer = document.createElement('div');
+                imageContainer.classList.add('image-container');
+                imageContainer.dataset.index = index;
+
+                // Create image element
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                imageContainer.appendChild(img);
+
+                // Create remove button
+                const removeButton = document.createElement('button');
+                removeButton.classList.add('remove-image');
+                removeButton.innerHTML = '&times;';
+                removeButton.onclick = function () {
+                    removeImage(index);
+                };
+                imageContainer.appendChild(removeButton);
+
+                previewContainer.appendChild(imageContainer);
+                selectedFiles.push(file);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function removeImage(index) {
+        const previewContainer = document.getElementById('image-preview');
+        const fileInput = document.getElementById('id_images');
+
+        // Remove the image container
+        const imageToRemove = previewContainer.querySelector(`.image-container[data-index="${index}"]`);
+        if (imageToRemove) {
+            imageToRemove.remove();
+        }
+
+        // Update the file input to exclude the removed file
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach((file, i) => {
+            if (i !== index) {
+                dataTransfer.items.add(file);
+            }
+        });
+        fileInput.files = dataTransfer.files;
+
+        // Refresh previews
+        previewImages();
+    }
+</script>
+
 {% endblock %}
