@@ -1,11 +1,12 @@
 {% load i18n %}
-
 {% for app in app_list %}
     {% if app.name != 'Authentication and Authorization' %}
         <div class="app-main">
             <h2>
-                {% if user.is_superuser and app.name == "Main" %}
-                    Manage Users
+                {% if user.is_superadmin and app.name == "Main" %}
+                    {% translate "Manage Users" %}
+                {% elif user.is_admin and app.name == "Main" %}
+                    {% translate "User Administration" %}
                 {% else %}
                     {{ app.name }}
                 {% endif %}
@@ -13,17 +14,21 @@
             <table>
                 <tbody>
                     {% for model in app.models %}
-                        <tr>
-                            <th scope="row">
-                                <a href="{{ model.admin_url }}">{{ model.name }}</a>
-                            </th>
-                            <td class="model-add">
-                                <a href="{{ model.add_url }}" class="addlink">{% translate "Add" %}</a>
-                            </td>
-                            <td class="model-change">
-                                <a href="{{ model.admin_url }}" class="changelink">{% translate "Change" %}</a>
-                            </td>
-                        </tr>
+                        {% if user.is_superadmin or user.is_admin %}
+                            <tr>
+                                <th scope="row">
+                                    <a href="{{ model.admin_url }}">{{ model.name }}</a>
+                                </th>
+                                <td class="model-add">
+                                    <a href="{{ model.add_url }}" class="addlink">{% translate "Add" %}</a>
+                                </td>
+                                <td class="model-change">
+                                    <a href="{{ model.admin_url }}" class="changelink">{% translate "Change" %}</a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <!-- Normal users might not see these options -->
+                        {% endif %}
                     {% endfor %}
                 </tbody>
             </table>

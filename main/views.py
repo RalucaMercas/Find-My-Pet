@@ -14,7 +14,9 @@ from django.urls import reverse_lazy
 def home(request):
     if request.user.is_authenticated:
         user = request.user
-        if isinstance(user, User) and user.is_superadmin():
+        if isinstance(user, User) and user.is_superadmin:
+            return redirect('/admin')
+        elif user.is_admin:
             return redirect('/admin')
         return render(request, 'main/home.html')
     return redirect('/login')

@@ -56,12 +56,14 @@ class User(AbstractUser):
             self.is_staff = False
         super().save(*args, **kwargs)
 
-
+    @property
     def is_admin(self):
         return self.role == self.Roles.ADMIN
 
+    @property
     def is_superadmin(self):
         return self.role == self.Roles.SUPERADMIN
 
+    @property
     def is_normal_user(self):
         return self.role == self.Roles.NORMAL_USER
