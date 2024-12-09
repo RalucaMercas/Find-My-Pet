@@ -1,5 +1,7 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
-from .views import home, sign_up, log_out, about, DeleteAccountView, EditProfileView
+from .views import home, sign_up, log_out, about, DeleteAccountView, EditProfileView, create_post, my_posts, post_detail, edit_post, delete_post
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -22,5 +24,12 @@ urlpatterns = [
     path('about/', about, name='about'),
     path('delete_account/', DeleteAccountView.as_view(), name='delete_account'),
     path('edit_profile/', EditProfileView.as_view(), name='edit_profile'),
-
+    path('create_post/<str:post_type>/', create_post, name='create_post'),
+    path('my_posts/', my_posts, name='my_posts'),
+    path('post/<int:post_id>/', post_detail, name='post_detail'),
+    path('post/<int:post_id>/edit/', edit_post, name='edit_post'),
+    path('post/<int:post_id>/delete/', delete_post, name='delete_post'),
 ]
+
+if settings.DEBUG:  # Serve media files only in development
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

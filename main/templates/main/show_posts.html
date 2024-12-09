@@ -1,0 +1,64 @@
+{% extends 'main/base.html' %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>{{ page_title }}</h2>
+        <form method="get" class="d-flex">
+            <label>
+                <select name="post_type" class="form-select me-2" onchange="this.form.submit()">
+                    <option value="lost" {% if post_type == "lost" %}selected{% endif %}>Lost Posts</option>
+                    <option value="found" {% if post_type == "found" %}selected{% endif %}>Found Posts</option>
+                </select>
+            </label>
+            <noscript><button type="submit" class="btn btn-primary">Filter</button></noscript>
+        </form>
+    </div>
+    <hr>
+
+    {% for post in posts %}
+    <div class="card mt-2">
+        <div class="card-header"><strong>@{{ post.user.username }}</strong></div>
+        <div class="card-body">
+            <h5 class="card-title">{{ post.title }}</h5>
+            <p>{{ post.description }}</p>
+            <p><strong>Area:</strong> {{ post.area }}</p>
+            <div class="row g-2">
+                {% for image in post.images.all %}
+                <div class="col-md-2">
+                    <img src="{{ image.image.url }}" alt="Image for {{ post.title }}"
+                         class="img-thumbnail"
+                         style="width: 100%; max-width: 200px; height: auto; object-fit: cover;">
+                </div>
+                {% empty %}
+                <p>No images available for this post.</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="card-footer text-muted d-flex justify-content-between">
+            <span>{{ post.created_at }}</span>
+            {% if page_title == "Home Page" %}
+            <a href="{% url 'post_detail' post.id %}?post_type={{ post_type }}" class="btn btn-primary btn-sm">View Details</a>
+            {% elif page_title == "My Posts" %}
+            <div>
+                <a href="{% url 'edit_post' post.id %}?post_type={{ post_type }}" class="btn btn-warning btn-sm">Edit</a>
+
+                <form method="post" action="{% url 'delete_post' post.id %}?post_type={{ post_type }}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to delete this post?');">
+                        Delete
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <p>No posts yet :(</p>
+    {% endfor %}
+
+
+</div>
+{% endblock %}

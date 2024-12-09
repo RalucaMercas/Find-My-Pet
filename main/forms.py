@@ -1,6 +1,8 @@
+from datetime import date
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User
+from .models import User, LostPost, FoundPost
 from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
 from phonenumbers import parse, is_valid_number, NumberParseException, region_code_for_country_code
@@ -100,3 +102,67 @@ class AdminUserCreationForm(UserCreationForm):
             "username", "first_name", "last_name", "email",
             "phone_number", "country", "role", "password1", "password2"
         ]
+
+
+class BasePostForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and isinstance(user, User):
+            self.fields['email'].initial = user.email
+            self.fields['phone_number'].initial = user.phone_number
+
+    def clean_date(self, field_name):
+        date_value = self.cleaned_data.get(field_name)
+        if date_value and date_value > date.today():
+            raise forms.ValidationError("The date cannot be in the future.")
+        return date_value
+
+
+class LostPostForm(BasePostForm):
+    class Meta:
+        model = LostPost
+        fields = [
+            "title",
+            "description",
+            "pet_name",
+            "area",
+            "date_lost",
+            "pet_type",
+            "pet_sex",
+            "email",
+            "phone_number",
+            "reward",
+        ]
+        widgets = {
+            'date_lost': forms.DateInput(attrs={'type': 'date'}),
+            'reward': forms.TextInput(attrs={
+                'placeholder': 'Enter reward',
+            }),
+        }
+        labels = {
+            'reward': 'Reward (in €)',  # Change the field name
+        }
+
+    def clean_date_lost(self):
+        return self.clean_date('date_lost')
+
+
+class FoundPostForm(BasePostForm):
+    class Meta:
+        model = FoundPost
+        fields = [
+            "title",
+            "description",
+            "area",
+            "date_found",
+            "pet_type",
+            "email",
+            "phone_number",
+        ]
+        widgets = {
+            'date_found': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def clean_date_found(self):
+        return self.clean_date('date_found')

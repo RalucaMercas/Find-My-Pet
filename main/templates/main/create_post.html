@@ -1,0 +1,200 @@
+{% extends 'main/base.html' %}
+{% block title %}
+{% if is_edit %}Edit {{ post_type }} Post{% elif is_view %}View Details{% else %}Create {{ post_type }} Post{% endif %}
+{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+    .highlight-field {
+        background-color: #d4edda;
+        border: 2px solid #c3e6cb;
+        color: #155724;
+        font-weight: bold;
+        border-radius: 0.375rem;
+        padding: 0.5rem;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+    .image-preview {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    .image-container {
+        position: relative;
+        display: inline-block;
+    }
+    .image-container img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        padding: 5px;
+    }
+    .image-container .remove-image {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        z-index: 10;
+    }
+</style>
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow" style="width: 36rem; padding: 20px; border-radius: 10px;">
+        <div class="card-body">
+            <h2 class="card-title text-center">
+                {% if is_edit %}Edit {{ post_type }} Post{% elif is_view %}View Details{% else %}Create a {{ post_type }} Post{% endif %}
+            </h2>
+            <hr>
+            {% if is_view %}
+            {% if post_type == "Lost" %}
+            <div class="alert alert-success text-center">
+                Did you find this pet? <strong>Contact the owner</strong> using the details below!
+            </div>
+            {% elif post_type == "Found" %}
+            <div class="alert alert-success text-center">
+                Is this your lost pet? <strong>Reach out to the finder</strong> using the details below!
+            </div>
+            {% endif %}
+            {% endif %}
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if is_edit %}
+                <div class="mb-3">
+                    <label class="form-label">Uploaded Images</label>
+                    <div id="existing-image-preview" class="image-preview">
+                        {% for image in existing_images %}
+                        <div class="image-container" data-image-id="{{ image.id }}">
+                            <img src="{{ image.image.url }}" alt="Image for {{ post.title }}" class="img-thumbnail">
+                            <button type="button" class="remove-image" data-image-id="{{ image.id }}">&times;</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="removed_existing_images" id="removed-existing-images">
+                </div>
+                {% endif %}
+                {% if not is_view %}
+                <div class="mb-3">
+                    <label for="id_images" class="form-label">Upload Images</label>
+                    <input type="file" name="images" id="id_images" class="form-control" multiple onchange="previewNewImages()">
+                    <small class="form-text text-muted">You can upload multiple images of the pet.</small>
+                    <div id="new-image-preview" class="image-preview"></div>
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    {{ form|crispy }}
+                </div>
+                {% if not is_view %}
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-success">
+                        {% if is_edit %}Save Changes{% else %}Post{% endif %}
+                    </button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const selectedFiles = [];
+    const removedImageIds = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const existingImagePreview = document.getElementById("existing-image-preview");
+        const removedImagesInput = document.getElementById("removed-existing-images");
+
+        if (existingImagePreview) {
+            existingImagePreview.addEventListener("click", function (e) {
+                if (e.target.classList.contains("remove-image")) {
+                    const imageContainer = e.target.closest(".image-container");
+                    const imageId = e.target.dataset.imageId;
+
+                    // Add the image ID to the list of removed images
+                    removedImageIds.push(imageId);
+                    removedImagesInput.value = removedImageIds.join(",");
+
+                    // Remove the image container from the preview
+                    imageContainer.remove();
+                }
+            });
+        }
+    });
+
+    function previewNewImages() {
+        const previewContainer = document.getElementById('new-image-preview');
+        const fileInput = document.getElementById('id_images');
+        const files = Array.from(fileInput.files);
+
+        // Clear previous previews
+        previewContainer.innerHTML = '';
+        selectedFiles.length = 0;
+
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                // Create image container
+                const imageContainer = document.createElement('div');
+                imageContainer.classList.add('image-container');
+                imageContainer.dataset.index = index;
+
+                // Create image element
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                imageContainer.appendChild(img);
+
+                // Create remove button
+                const removeButton = document.createElement('button');
+                removeButton.classList.add('remove-image');
+                removeButton.innerHTML = '&times;';
+                removeButton.onclick = function () {
+                    removeNewImage(index);
+                };
+                imageContainer.appendChild(removeButton);
+
+                previewContainer.appendChild(imageContainer);
+                selectedFiles.push(file);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function removeNewImage(index) {
+        const previewContainer = document.getElementById('new-image-preview');
+        const fileInput = document.getElementById('id_images');
+
+        // Remove the image container
+        const imageToRemove = previewContainer.querySelector(`.image-container[data-index="${index}"]`);
+        if (imageToRemove) {
+            imageToRemove.remove();
+        }
+
+        // Update the file input to exclude the removed file
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach((file, i) => {
+            if (i !== index) {
+                dataTransfer.items.add(file);
+            }
+        });
+        fileInput.files = dataTransfer.files;
+
+        // Refresh previews
+        previewNewImages();
+    }
+</script>
+
+{% endblock %}
