@@ -100,9 +100,12 @@
                 </div>
                 {% if not is_view %}
                 <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success me-2">
                         {% if is_edit %}Save Changes{% else %}Post{% endif %}
                     </button>
+                    {% if is_edit %}
+                        <a href="{% url 'my_posts' %}?post_type={{ post_type|lower }}" class="btn btn-secondary cancel-btn">Cancel</a>
+                    {% endif %}
                 </div>
                 {% endif %}
             </form>

@@ -44,9 +44,11 @@ def my_posts(request):
     post_type = request.GET.get('post_type', 'lost')
 
     if post_type == 'lost':
-        posts = LostPost.objects.filter(user=request.user).prefetch_related('images').order_by('-created_at')
+        posts = LostPost.objects.filter(user=request.user, is_archived=False).prefetch_related('images').order_by(
+            '-created_at')
     elif post_type == 'found':
-        posts = FoundPost.objects.filter(user=request.user).prefetch_related('images').order_by('-created_at')
+        posts = FoundPost.objects.filter(user=request.user, is_archived=False).prefetch_related('images').order_by(
+            '-created_at')
     else:
         posts = []
 
@@ -54,6 +56,26 @@ def my_posts(request):
         'posts': posts,
         'post_type': post_type,
         'page_title': 'My Posts',
+    })
+
+
+@login_required
+def my_archive(request):
+    post_type = request.GET.get('post_type', 'lost')
+
+    if post_type == 'lost':
+        posts = LostPost.objects.filter(user=request.user, is_archived=True).prefetch_related('images').order_by(
+            '-created_at')
+    elif post_type == 'found':
+        posts = FoundPost.objects.filter(user=request.user, is_archived=True).prefetch_related('images').order_by(
+            '-created_at')
+    else:
+        posts = []
+
+    return render(request, 'main/show_posts.html', {
+        'posts': posts,
+        'post_type': post_type,
+        'page_title': 'My Archive',
     })
 
 
@@ -211,6 +233,44 @@ def delete_post(request, post_id):
 
 
 @login_required
+def archive_post(request, post_id):
+    post_type = request.GET.get('post_type')
+    if post_type == 'lost':
+        post_model = LostPost
+    elif post_type == 'found':
+        post_model = FoundPost
+    else:
+        messages.error(request, "Invalid post type.")
+        return redirect('my_posts')
+
+    post = get_object_or_404(post_model, id=post_id, user=request.user)
+    post.is_archived = True
+    post.save()
+
+    messages.success(request, "Post archived successfully.")
+    return redirect(f'/my_posts/?post_type={post_type}')
+
+
+@login_required
+def unarchive_post(request, post_id):
+    post_type = request.GET.get('post_type')
+    if post_type == 'lost':
+        post_model = LostPost
+    elif post_type == 'found':
+        post_model = FoundPost
+    else:
+        messages.error(request, "Invalid post type.")
+        return redirect('my_archive')
+
+    post = get_object_or_404(post_model, id=post_id, user=request.user)
+    post.is_archived = False
+    post.save()
+
+    messages.success(request, "Post unarchived successfully.")
+    return redirect(f'/my_archive/?post_type={post_type}')
+
+
+@login_required
 def post_detail(request, post_id):
     post_type = request.GET.get('post_type', 'lost')
     post_model = LostPost if post_type == 'lost' else FoundPost
@@ -234,12 +294,12 @@ def post_detail(request, post_id):
         field.required = False
         field.disabled = True
     return render(request, 'main/create_post.html', {
-                'form': form,
-                'post_type': post_type.capitalize(),
-                'is_edit': False,
-                'is_view': True,
-                'highlight_fields': {
-                    'email': form.instance.email,
-                    'phone_number': form.instance.phone_number,
-                }
-        })
+        'form': form,
+        'post_type': post_type.capitalize(),
+        'is_edit': False,
+        'is_view': True,
+        'highlight_fields': {
+            'email': form.instance.email,
+            'phone_number': form.instance.phone_number,
+        }
+    })

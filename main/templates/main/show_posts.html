@@ -51,7 +51,19 @@
                         Delete
                     </button>
                 </form>
+
+                {% if not post.is_archived %}
+                <form method="post" action="{% url 'archive_post' post.id %}?post_type={{ post_type }}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary btn-sm">Archive</button>
+                </form>
+                {% endif %}
             </div>
+            {% elif page_title == "My Archive" %}
+            <form method="post" action="{% url 'unarchive_post' post.id %}?post_type={{ post_type }}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary btn-sm">Unarchive</button>
+            </form>
             {% endif %}
         </div>
     </div>
