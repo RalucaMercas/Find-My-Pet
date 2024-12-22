@@ -37,21 +37,14 @@
             <tbody>
                 <tr>
                     <th scope="row">
-                        <a href="{% url 'admin_manage_posts' %}?archived=0">Active Posts</a>
+                        <a href="{% url 'admin_manage_posts' %}">Posts</a>
                     </th>
                     <td class="model-add">
-                        <span class="addlink">{% translate "View" %}</span>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">
-                        <a href="{% url 'admin_manage_posts' %}?archived=1">Archived Posts</a>
-                    </th>
-                    <td class="model-add">
-                        <span class="addlink">{% translate "View" %}</span>
+                        <a href="{% url 'admin_manage_posts' %}" class="addlink">{% translate "View" %}</a>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
 {% endif %}
+
