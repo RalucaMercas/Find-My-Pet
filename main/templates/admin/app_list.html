@@ -28,7 +28,7 @@
     {% endif %}
 {% endfor %}
 
-{% if user.is_superadmin %}
+{% if user.is_superadmin or user.is_admin %}
     <div class="app-main">
         <h2>
             Manage Posts
