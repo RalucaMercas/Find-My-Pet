@@ -12,6 +12,7 @@ from .models import User, LostPost, FoundPost, PetImage
 from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.messages import get_messages
 
 
 def home(request):
@@ -329,6 +330,10 @@ def is_admin_or_superadmin(user):
 
 @user_passes_test(is_admin_or_superadmin)
 def manage_posts(request):
+    if request.user.is_superadmin or request.user.is_admin:
+        storage = get_messages(request)
+        list(storage)
+
     post_type = request.GET.get('post_type', 'lost')
     is_archived = request.GET.get('archived', '0') == '1'  # 0 = Active, 1 = Archived
     is_superadmin = request.user.is_superadmin
