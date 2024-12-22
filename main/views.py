@@ -236,39 +236,63 @@ def delete_post(request, post_id):
 @login_required
 def archive_post(request, post_id):
     post_type = request.GET.get('post_type')
+
+    # Determine the correct model based on the post type
     if post_type == 'lost':
         post_model = LostPost
     elif post_type == 'found':
         post_model = FoundPost
     else:
         messages.error(request, "Invalid post type.")
-        return redirect('my_posts')
+        return redirect('/manage_posts/' if request.user.is_superadmin or request.user.is_admin else '/my_posts/')
 
-    post = get_object_or_404(post_model, id=post_id, user=request.user)
+    # Filter the post for normal users or fetch any post for admins/superadmins
+    if request.user.is_superadmin or request.user.is_admin:
+        post = get_object_or_404(post_model, id=post_id)
+    else:
+        post = get_object_or_404(post_model, id=post_id, user=request.user)
+
     post.is_archived = True
     post.save()
 
     messages.success(request, "Post archived successfully.")
-    return redirect(f'/my_posts/?post_type={post_type}')
+
+    # Redirect based on the user role
+    if request.user.is_superadmin or request.user.is_admin:
+        return redirect(f'/manage_posts/?post_type={post_type}&archived=0')
+    else:
+        return redirect(f'/my_posts/?post_type={post_type}')
 
 
 @login_required
 def unarchive_post(request, post_id):
     post_type = request.GET.get('post_type')
+
+    # Determine the correct model based on the post type
     if post_type == 'lost':
         post_model = LostPost
     elif post_type == 'found':
         post_model = FoundPost
     else:
         messages.error(request, "Invalid post type.")
-        return redirect('my_archive')
+        return redirect('/manage_posts/' if request.user.is_superadmin or request.user.is_admin else '/my_archive/')
 
-    post = get_object_or_404(post_model, id=post_id, user=request.user)
+    # Filter the post for normal users or fetch any post for admins/superadmins
+    if request.user.is_superadmin or request.user.is_admin:
+        post = get_object_or_404(post_model, id=post_id)
+    else:
+        post = get_object_or_404(post_model, id=post_id, user=request.user)
+
     post.is_archived = False
     post.save()
 
     messages.success(request, "Post unarchived successfully.")
-    return redirect(f'/my_archive/?post_type={post_type}')
+
+    # Redirect based on the user role
+    if request.user.is_superadmin or request.user.is_admin:
+        return redirect(f'/manage_posts/?post_type={post_type}&archived=1')
+    else:
+        return redirect(f'/my_archive/?post_type={post_type}')
 
 
 @login_required
