@@ -237,7 +237,6 @@ def delete_post(request, post_id):
 def archive_post(request, post_id):
     post_type = request.GET.get('post_type')
 
-    # Determine the correct model based on the post type
     if post_type == 'lost':
         post_model = LostPost
     elif post_type == 'found':
@@ -246,7 +245,6 @@ def archive_post(request, post_id):
         messages.error(request, "Invalid post type.")
         return redirect('/manage_posts/' if request.user.is_superadmin or request.user.is_admin else '/my_posts/')
 
-    # Filter the post for normal users or fetch any post for admins/superadmins
     if request.user.is_superadmin or request.user.is_admin:
         post = get_object_or_404(post_model, id=post_id)
     else:
@@ -257,7 +255,6 @@ def archive_post(request, post_id):
 
     messages.success(request, "Post archived successfully.")
 
-    # Redirect based on the user role
     if request.user.is_superadmin or request.user.is_admin:
         return redirect(f'/manage_posts/?post_type={post_type}&archived=0')
     else:
@@ -268,7 +265,6 @@ def archive_post(request, post_id):
 def unarchive_post(request, post_id):
     post_type = request.GET.get('post_type')
 
-    # Determine the correct model based on the post type
     if post_type == 'lost':
         post_model = LostPost
     elif post_type == 'found':
@@ -277,7 +273,6 @@ def unarchive_post(request, post_id):
         messages.error(request, "Invalid post type.")
         return redirect('/manage_posts/' if request.user.is_superadmin or request.user.is_admin else '/my_archive/')
 
-    # Filter the post for normal users or fetch any post for admins/superadmins
     if request.user.is_superadmin or request.user.is_admin:
         post = get_object_or_404(post_model, id=post_id)
     else:
@@ -288,7 +283,6 @@ def unarchive_post(request, post_id):
 
     messages.success(request, "Post unarchived successfully.")
 
-    # Redirect based on the user role
     if request.user.is_superadmin or request.user.is_admin:
         return redirect(f'/manage_posts/?post_type={post_type}&archived=1')
     else:
@@ -335,9 +329,9 @@ def is_admin_or_superadmin(user):
 
 @user_passes_test(is_admin_or_superadmin)
 def manage_posts(request):
-    post_type = request.GET.get('post_type', 'lost')  # Default to 'lost'
+    post_type = request.GET.get('post_type', 'lost')
     is_archived = request.GET.get('archived', '0') == '1'  # 0 = Active, 1 = Archived
-    is_superadmin = request.user.is_superadmin  # Identify if the user is Superadmin
+    is_superadmin = request.user.is_superadmin
 
     if post_type == 'lost':
         posts = LostPost.objects.filter(is_archived=is_archived).order_by('-created_at')
@@ -350,6 +344,6 @@ def manage_posts(request):
         'posts': posts,
         'post_type': post_type,
         'is_archived': is_archived,
-        'is_superadmin': is_superadmin,  # Pass Superadmin context
+        'is_superadmin': is_superadmin,
     })
 
