@@ -3,6 +3,10 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.admin import SimpleListFilter
 from .models import User
 from .forms import AdminUserCreationForm
+from django.utils.html import format_html
+from .models import LostPost, FoundPost
+from django.urls import reverse
+
 
 class RoleWithoutSuperAdminFilter(SimpleListFilter):
     title = 'role'
@@ -139,3 +143,28 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(User, UserAdmin)
+
+class PostAdminMixin:
+    """Mixin to add manage posts functionality for Superadmin."""
+
+    def manage_posts_link(self):
+        return format_html(
+            '<a class="button" href="{}">Manage Posts</a>',
+            reverse('admin_manage_posts')
+        )
+    manage_posts_link.short_description = "Manage Posts"
+
+class LostPostAdmin(PostAdminMixin, admin.ModelAdmin):
+    list_display = ('title', 'user', 'created_at', 'is_archived', 'manage_posts_link')
+    list_filter = ('is_archived',)
+    search_fields = ('title', 'user__username')
+
+class FoundPostAdmin(PostAdminMixin, admin.ModelAdmin):
+    list_display = ('title', 'user', 'created_at', 'is_archived', 'manage_posts_link')
+    list_filter = ('is_archived',)
+    search_fields = ('title', 'user__username')
+
+admin.site.register(LostPost, LostPostAdmin)
+admin.site.register(FoundPost, FoundPostAdmin)
+
+

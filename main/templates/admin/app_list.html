@@ -1,6 +1,6 @@
 {% load i18n %}
 {% for app in app_list %}
-    {% if app.name != 'Authentication and Authorization' %}
+    {% if app.name == "Manage Users" %}
         <div class="app-main">
             <h2>
                 {{ app.name }}
@@ -8,7 +8,7 @@
             <table>
                 <tbody>
                     {% for model in app.models %}
-                        {% if user.is_superadmin or user.is_admin %}
+                        {% if model.object_name == "User" %}
                             <tr>
                                 <th scope="row">
                                     <a href="{{ model.admin_url }}">{{ model.name }}</a>
@@ -28,3 +28,30 @@
     {% endif %}
 {% endfor %}
 
+{% if user.is_superadmin %}
+    <div class="app-main">
+        <h2>
+            Manage Posts
+        </h2>
+        <table>
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'admin_manage_posts' %}?archived=0">Active Posts</a>
+                    </th>
+                    <td class="model-add">
+                        <span class="addlink">{% translate "View" %}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'admin_manage_posts' %}?archived=1">Archived Posts</a>
+                    </th>
+                    <td class="model-add">
+                        <span class="addlink">{% translate "View" %}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endif %}

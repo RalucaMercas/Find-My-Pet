@@ -11,6 +11,7 @@ from django.views.generic.edit import UpdateView
 from .models import User, LostPost, FoundPost, PetImage
 from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.decorators import user_passes_test
 
 
 def home(request):
@@ -303,3 +304,28 @@ def post_detail(request, post_id):
             'phone_number': form.instance.phone_number,
         }
     })
+
+
+def is_admin_or_superadmin(user):
+    return user.is_authenticated and (user.is_admin or user.is_superadmin)
+
+@user_passes_test(is_admin_or_superadmin)
+def manage_posts(request):
+    post_type = request.GET.get('post_type', 'lost')  # Default to 'lost'
+    is_archived = request.GET.get('archived', '0') == '1'  # 0 = Active, 1 = Archived
+    is_superadmin = request.user.is_superadmin  # Identify if the user is Superadmin
+
+    if post_type == 'lost':
+        posts = LostPost.objects.filter(is_archived=is_archived).order_by('-created_at')
+    elif post_type == 'found':
+        posts = FoundPost.objects.filter(is_archived=is_archived).order_by('-created_at')
+    else:
+        posts = []
+
+    return render(request, 'manage_posts.html', {
+        'posts': posts,
+        'post_type': post_type,
+        'is_archived': is_archived,
+        'is_superadmin': is_superadmin,  # Pass Superadmin context
+    })
+

@@ -1,0 +1,63 @@
+{% extends 'main/base.html' %}
+{% block title %}Manage Posts{% endblock %}
+
+{% block content %}
+<h2>Manage Posts</h2>
+
+<form method="get" class="d-flex">
+    <select name="post_type" class="form-select me-2">
+        <option value="lost" {% if post_type == "lost" %}selected{% endif %}>Lost Posts</option>
+        <option value="found" {% if post_type == "found" %}selected{% endif %}>Found Posts</option>
+    </select>
+    <select name="archived" class="form-select me-2">
+        <option value="0" {% if not is_archived %}selected{% endif %}>Active</option>
+        <option value="1" {% if is_archived %}selected{% endif %}>Archived</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+</form>
+
+<hr>
+
+{% for post in posts %}
+<div class="card mt-3">
+    <div class="card-header">
+        <strong>@{{ post.user.username }}</strong>
+        {% if is_superadmin %}
+        <span class="badge bg-info ms-2">Superadmin View</span>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ post.title }}</h5>
+        <p>{{ post.description }}</p>
+        <p><strong>Area:</strong> {{ post.area }}</p>
+        <div class="row g-2">
+            {% for image in post.images.all %}
+            <div class="col-md-2">
+                <img src="{{ image.image.url }}" alt="Image for {{ post.title }}" class="img-thumbnail">
+            </div>
+            {% empty %}
+            <p>No images available for this post.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card-footer text-muted d-flex justify-content-between">
+        <span>{{ post.created_at }}</span>
+        <div>
+            {% if not post.is_archived %}
+            <form method="post" action="{% url 'archive_post' post.id %}?post_type={{ post_type }}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary btn-sm">Archive</button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'unarchive_post' post.id %}?post_type={{ post_type }}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary btn-sm">Unarchive</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% empty %}
+<p>No posts yet :(</p>
+{% endfor %}
+{% endblock %}

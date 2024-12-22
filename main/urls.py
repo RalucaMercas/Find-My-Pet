@@ -3,6 +3,7 @@ from django.conf.urls.static import static
 from django.urls import path
 from .views import home, sign_up, log_out, about, DeleteAccountView, EditProfileView, create_post, my_posts, post_detail, edit_post, delete_post, archive_post, my_archive, unarchive_post
 from django.contrib.auth import views as auth_views
+from .views import manage_posts
 
 urlpatterns = [
     path('', home, name='home'),
@@ -32,6 +33,8 @@ urlpatterns = [
     path('post/<int:post_id>/delete/', delete_post, name='delete_post'),
     path('post/<int:post_id>/archive/', archive_post, name='archive_post'),
     path('post/<int:post_id>/unarchive/', unarchive_post, name='unarchive_post'),
+
+    path('manage_posts/', manage_posts, name='admin_manage_posts'),
 
 ]
 
