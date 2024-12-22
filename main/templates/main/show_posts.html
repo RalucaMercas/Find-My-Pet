@@ -16,6 +16,27 @@
         </form>
     </div>
     <hr>
+    {% if page_title == "Home Page" %}
+    <form method="get" class="d-flex gap-2">
+        <input type="hidden" name="post_type" value="{{ post_type }}">
+
+        <!-- Search Field -->
+        <input type="text" name="search" class="form-control"
+               placeholder="Search posts..."
+               value="{{ search_query }}">
+
+        <!-- Filter Dropdown -->
+        <select name="filter" class="form-select">
+            <option value="">Filter by</option>
+            <option value="cat" {% if filter_criteria == "cat" %}selected{% endif %}>Cats</option>
+            <option value="dog" {% if filter_criteria == "dog" %}selected{% endif %}>Dogs</option>
+            <option value="other" {% if filter_criteria == "other" %}selected{% endif %}>Others</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary">Apply</button>
+    </form>
+    {% endif %}
+    <hr>
 
     {% for post in posts %}
     <div class="card mt-2">
@@ -70,7 +91,5 @@
     {% empty %}
     <p>No posts yet :(</p>
     {% endfor %}
-
-
 </div>
 {% endblock %}
