@@ -11,6 +11,7 @@ from django.views.generic.edit import UpdateView
 from .models import User, LostPost, FoundPost, PetImage
 from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.messages import get_messages
 import matplotlib.pyplot as plt
@@ -28,9 +29,9 @@ def home(request):
             return redirect('/admin')
         elif user.is_admin:
             return redirect('/admin')
-    #     return render(request, 'main/home.html')
-    # return redirect('/login')
-    post_type = request.GET.get('post_type', 'lost')  # Default to 'lost'
+    post_type = request.GET.get('post_type', 'lost')
+    search_query = request.GET.get('search', '')
+    filter_criteria = request.GET.get('filter', '')
 
     if post_type == 'lost':
         posts = LostPost.objects.filter(is_archived=False).prefetch_related('images').order_by('-created_at')
@@ -39,11 +40,28 @@ def home(request):
     else:
         posts = []
 
+    if search_query:
+        posts = posts.filter(
+            Q(title__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(area__icontains=search_query) |
+            Q(pet_name__icontains=search_query)
+        )
+
+    if filter_criteria:
+        if filter_criteria == 'cat':
+            posts = posts.filter(pet_type='cat')
+        elif filter_criteria == 'dog':
+            posts = posts.filter(pet_type='dog')
+        elif filter_criteria == 'other':
+            posts = posts.filter(pet_type='other')
+
     return render(request, 'main/show_posts.html', {
         'posts': posts,
         'post_type': post_type,
         'page_title': 'Home Page',
-
+        'search_query': search_query,
+        'filter_criteria': filter_criteria,
     })
 
 
@@ -134,7 +152,6 @@ def sign_up(request):
 def log_out(request):
     logout(request)
     return redirect('/login')
-    # return redirect('/home')
 
 
 def about(request):
@@ -161,10 +178,6 @@ class DeleteAccountView(LoginRequiredMixin, TemplateView):
         else:
             messages.error(request, "Please confirm your password.")
         return render(request, self.template_name, {'form': form})
-
-
-# TODO: if a user clicks on "Forgot password" on the login page, and the provided email is not in the database,
-#  the user should be warned that there is no account with that email address.
 
 
 class EditProfileView(UpdateView):
@@ -294,7 +307,6 @@ def unarchive_post(request, post_id):
         return redirect(f'/my_archive/?post_type={post_type}')
 
 
-@login_required
 def post_detail(request, post_id):
     post_type = request.GET.get('post_type', 'lost')
     post_model = LostPost if post_type == 'lost' else FoundPost

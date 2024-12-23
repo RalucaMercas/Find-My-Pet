@@ -31,6 +31,23 @@
 
       {% else %}
         <div>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/home">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="PostDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Create new post
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-start" aria-labelledby="PostDropdown">
+                        <li><a class="dropdown-item" href="/create_post/lost">Post Lost Pet</a></li>
+                        <li><a class="dropdown-item" href="/create_post/found">Post Found Pet</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">About us</a>
+                </li>
+            </ul>
           <ul class="navbar-nav">
             <li class="nav-item">
               <a class="nav-link" href="/home">Home</a>
