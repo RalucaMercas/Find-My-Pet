@@ -1,0 +1,91 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Statistics{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">📊 Statistics Dashboard</h1>
+    <hr>
+
+    <!-- General Overview Section -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <h2 class="text-center text-primary">General Overview</h2>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body">
+                            <h4 class="card-title">Lost Posts</h4>
+                            <p class="display-4 text-danger">{{ lost_posts_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body">
+                            <h4 class="card-title">Found Posts</h4>
+                            <p class="display-4 text-success">{{ found_posts_count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphs Section -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <h2 class="text-center text-primary">Post Activity Timeline</h2>
+            <div class="row mt-4">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white text-center">
+                            Lost Posts Over Time
+                        </div>
+                        <div class="card-body">
+                            <img src="data:image/png;base64,{{ lost_daily_chart }}" alt="Lost Posts Over Time" class="img-fluid rounded">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-success text-white text-center">
+                            Found Posts Over Time
+                        </div>
+                        <div class="card-body">
+                            <img src="data:image/png;base64,{{ found_daily_chart }}" alt="Found Posts Over Time" class="img-fluid rounded">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white text-center">
+                            Species Distribution
+                        </div>
+                        <div class="card-body d-flex justify-content-center align-items-center">
+                            <img src="data:image/png;base64,{{ species_chart }}" alt="Species Distribution" class="img-fluid rounded">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white text-center">
+                User Activities Over Time
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center">
+                <img src="data:image/png;base64,{{ user_activity_chart }}" alt="User Activities Over Time" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+{% endblock %}

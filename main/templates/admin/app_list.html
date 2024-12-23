@@ -48,3 +48,20 @@
     </div>
 {% endif %}
 
+{% if user.is_superadmin or user.is_admin %}
+    <div class="app-main">
+        <h2>View Statistics</h2>
+        <table>
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'view_statistics' %}">Statistics</a>
+                    </th>
+                    <td class="model-add">
+                        <a href="{% url 'view_statistics' %}" class="addlink">View</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endif %}

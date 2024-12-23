@@ -13,6 +13,12 @@ from django.urls import reverse_lazy
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.messages import get_messages
+import matplotlib.pyplot as plt
+import io
+import base64
+from django.shortcuts import render
+from django.db import models
+from collections import Counter
 
 
 def home(request):
@@ -184,13 +190,11 @@ def edit_post(request, post_id):
         if form.is_valid():
             post = form.save()
 
-            # Handle removed images
             removed_image_ids = request.POST.get('removed_existing_images', '')
             if removed_image_ids:
                 removed_image_ids = [int(image_id) for image_id in removed_image_ids.split(',')]
                 PetImage.objects.filter(id__in=removed_image_ids).delete()
 
-            # Handle newly uploaded images
             images = request.FILES.getlist('images')
             for image in images:
                 PetImage.objects.create(
@@ -352,3 +356,109 @@ def manage_posts(request):
         'is_superadmin': is_superadmin,
     })
 
+
+@login_required
+def view_statistics(request):
+    if not (request.user.is_superadmin or request.user.is_admin):
+        return redirect('home')
+
+    lost_posts_count = LostPost.objects.filter(is_archived=False).count()
+    found_posts_count = FoundPost.objects.filter(is_archived=False).count()
+
+    daily_lost = (
+        LostPost.objects.extra(select={'day': "DATE(created_at)"}).values('day')
+        .annotate(count=models.Count('id')).order_by('day')
+    )
+    daily_found = (
+        FoundPost.objects.extra(select={'day': "DATE(created_at)"}).values('day')
+        .annotate(count=models.Count('id')).order_by('day')
+    )
+
+    lost_species_distribution = (
+        LostPost.objects.values('pet_type')
+        .annotate(count=models.Count('id'))
+        .order_by('pet_type')
+    )
+
+    found_species_distribution = (
+        FoundPost.objects.values('pet_type')
+        .annotate(count=models.Count('id'))
+        .order_by('pet_type')
+    )
+
+    species_counter = Counter()
+    for entry in lost_species_distribution:
+        species_counter[entry['pet_type']] += entry['count']
+    for entry in found_species_distribution:
+        species_counter[entry['pet_type']] += entry['count']
+
+    species_labels = list(species_counter.keys())
+    species_counts = list(species_counter.values())
+
+    user_activities = Counter()
+    for entry in daily_lost:
+        user_activities[entry['day']] += entry['count']
+    for entry in daily_found:
+        user_activities[entry['day']] += entry['count']
+
+    activity_dates = sorted(user_activities.keys())
+    activity_counts = [user_activities[date] for date in activity_dates]
+
+    def generate_chart(x, y, title, chart_type="line", color="blue"):
+        plt.figure(figsize=(8, 4))
+        if chart_type == "bar":
+            plt.bar(x, y, color=color)
+            plt.title(title)
+            plt.xlabel('Date')
+            plt.ylabel('Count')
+        elif chart_type == "line":
+            plt.plot(x, y, marker='o', color=color, label='User Activity')
+            plt.title(title)
+            plt.xlabel('Date')
+            plt.ylabel('Number of Posts')
+            plt.legend()
+        elif chart_type == "pie":
+            plt.pie(y, labels=x, autopct='%1.1f%%', startangle=140)
+            plt.title(title)
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png')
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
+        return base64.b64encode(image_png).decode('utf-8')
+
+    lost_daily_chart = generate_chart(
+        [entry['day'] for entry in daily_lost],
+        [entry['count'] for entry in daily_lost],
+        "Lost Posts Over Time",
+        "bar"
+    )
+    found_daily_chart = generate_chart(
+        [entry['day'] for entry in daily_found],
+        [entry['count'] for entry in daily_found],
+        "Found Posts Over Time",
+        "bar",
+        color="green"
+    )
+    user_activity_chart = generate_chart(
+        activity_dates,
+        activity_counts,
+        "User Activities Over Time",
+        "line",
+        color="orange"
+    )
+    species_chart = generate_chart(
+        species_labels,
+        species_counts,
+        "Species Distribution",
+        "pie"
+    )
+
+    return render(request, 'view_statistics.html', {
+        'lost_posts_count': lost_posts_count,
+        'found_posts_count': found_posts_count,
+        'lost_daily_chart': lost_daily_chart,
+        'found_daily_chart': found_daily_chart,
+        'user_activity_chart': user_activity_chart,
+        'species_chart': species_chart,
+    })
