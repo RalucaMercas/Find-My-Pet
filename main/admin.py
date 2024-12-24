@@ -94,7 +94,7 @@ class UserAdmin(BaseUserAdmin):
         if self.is_request_user_superadmin(request):
             return True
         if self.is_request_user_admin(request):
-            if obj is None or obj.role == User.Roles.NORMAL_USER:
+            # if obj is None or obj.role == User.Roles.NORMAL_USER:
                 return True
         return False
 
@@ -167,4 +167,11 @@ class FoundPostAdmin(PostAdminMixin, admin.ModelAdmin):
 admin.site.register(LostPost, LostPostAdmin)
 admin.site.register(FoundPost, FoundPostAdmin)
 
+class LostPostAdmin(PostAdminMixin, admin.ModelAdmin):
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superadmin or request.user.is_admin
+
+class FoundPostAdmin(PostAdminMixin, admin.ModelAdmin):
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superadmin or request.user.is_admin
 
