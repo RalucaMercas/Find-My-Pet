@@ -13,3 +13,5 @@ db.sqlite3
 *.log
 *.swp
 /venv/
+media/pet_images/caine.jpg
+media/pet_images/
