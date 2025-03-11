@@ -1,7 +1,7 @@
 # Find My Pet - Lost and Found Pets Web Application
 
 ## Overview
-**Find My Pet** is a Django-based web application designed to help pet owners find their lost pets and reunite them with their families. The platform allows users to post lost and found pet announcements, search and filter listings, and communicate securely through authentication features. The system includes different user roles such as **Normal Users, Administrators, and Super Administrators** to ensure efficient management.
+**Find My Pet** is a Django-based web application designed to help pet owners find their lost pets and reunite them with their families. The platform allows users to post lost and found pet announcements, search and filter listings, and communicate securely through authentication features. The system includes different user roles such as **Normal Users, Administrators, and Super Administrators** to ensure efficient management. 
 
 ## Features
 ### User Features:
